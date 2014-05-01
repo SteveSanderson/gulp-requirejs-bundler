@@ -1,6 +1,6 @@
 {
   "name": "gulp-requirejs-bundler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Gulp plugin: wraps gulp-requirejs, adds ability to emit bundle files and bundle config",
   "keywords": [
     "gulpplugin"
