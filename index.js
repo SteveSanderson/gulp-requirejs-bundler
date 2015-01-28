@@ -19,6 +19,8 @@ module.exports = function(options) {
                     out: bundleName + ".js",
                     baseUrl: options.baseUrl,
                     paths: options.paths,
+                    shim: options.shim,
+                    map: options.map,
                     include: bundleModules,
                     exclude: primaryOutput.modules
                 }, bundleName);
