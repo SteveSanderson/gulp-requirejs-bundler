@@ -6,22 +6,30 @@ var es = require('event-stream'),
     _ = require('underscore');
 
 module.exports = function(options) {
+
+    // Get a list of all the modules that will be included in the bundles,
+    // so that they can be excluded from the primary output
+    var allBundledModules = _.flatten(_.values(options.bundles));
+
     // First run r.js to produce its default (non-bundle-aware) output. In the process,
     // we capture the list of modules it wrote.
-    var primaryPromise = getRjsOutput(options);
+    var primaryPromise = getRjsOutput(merge({}, options, {
+        excludeShallow: allBundledModules
+    }));
 
     // Next, take the above list of modules, and for each configured bundle, write out
     // the bundle's .js file, excluding any modules included in the primary output. In
     // the process, capture the list of modules included in each bundle file.
     var bundlePromises = _.map(options.bundles || {}, function(bundleModules, bundleName) {
             return primaryPromise.then(function(primaryOutput) {
-                return getRjsOutput({
+                return getRjsOutput(merge({}, options, {
                     out: bundleName + ".js",
-                    baseUrl: options.baseUrl,
-                    paths: options.paths,
                     include: bundleModules,
-                    exclude: primaryOutput.modules
-                }, bundleName);
+                    excludeShallow: primaryOutput.modules.concat(allBundledModules).filter(function (x) {
+                        return bundleModules.indexOf(x) === -1;
+                    }),
+                    insertRequire: null
+                }), bundleName);
             });
         });
 
